@@ -44,6 +44,7 @@ export default function Home() {
             <span className="font-bold text-xl tracking-tight">Skinlytics</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+            <Link href="#ai-features" className="hover:text-primary transition-colors">AI Features</Link>
             <Link href="/features" className="hover:text-primary transition-colors">Features</Link>
             <Link href="/science" className="hover:text-primary transition-colors">Science</Link>
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
@@ -156,8 +157,73 @@ export default function Home() {
           </div>
         </section>
 
+        {/* AI Features Showcase */}
+        <section id="ai-features" className="py-24 bg-background">
+          <div className="container mx-auto px-6">
+            <div className="mb-16 text-center">
+              <Badge variant="outline" className="mb-4 rounded-full px-4 py-1.5 border-primary/30 text-primary bg-primary/5">
+                <Zap className="w-3 h-3 mr-2 inline" />
+                SD.Next Integration
+              </Badge>
+              <h3 className="text-3xl md:text-4xl font-bold">AI-Powered Features</h3>
+              <p className="text-muted-foreground mt-4 max-w-xl mx-auto">Analisa kulit Anda lalu jelajahi simulasi AI yang didukung oleh Stable Diffusion.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <AIFeatureCard
+                href="/simulate"
+                icon="✨"
+                title="Treatment Simulator"
+                description="Lihat wajah Anda setelah 3-6 bulan perawatan kulit dengan simulasi AI."
+                tag="Populer"
+                tagColor="bg-primary"
+              />
+              <AIFeatureCard
+                href="/dashboard"
+                icon="🏥"
+                title="Derma Dashboard"
+                description="Dashboard klinis dengan heatmap kerutan, skor hidrasi, dan analisis zona."
+                tag="Clinical"
+                tagColor="bg-blue-600"
+              />
+              <AIFeatureCard
+                href="/timelapse"
+                icon="⏳"
+                title="Age Time-Lapse"
+                description="Simulasikan penuaan kulit Anda dari usia 25 hingga 65 tahun."
+                tag="AI"
+                tagColor="bg-purple-600"
+              />
+              <AIFeatureCard
+                href="/products"
+                icon="💄"
+                title="Product Visualizer"
+                description="Bandingkan efek Retinol, Vitamin C, Hyaluronic Acid pada wajah Anda."
+                tag="Bisnis"
+                tagColor="bg-amber-600"
+              />
+              <AIFeatureCard
+                href="/therapist"
+                icon="🤖"
+                title="AI Skin Therapist"
+                description="Chat interaktif dengan AI konsultan kulit berbahasa Indonesia."
+                tag="Chat"
+                tagColor="bg-green-600"
+              />
+              <AIFeatureCard
+                href="/report"
+                icon="📊"
+                title="Clinical Report"
+                description="Laporan profesional lengkap yang bisa dicetak dan diunduh."
+                tag="Export"
+                tagColor="bg-zinc-700"
+              />
+            </div>
+          </div>
+        </section>
+
         {/* Diagnostic Teaser */}
-        <section className="py-24 bg-background">
+        <section className="py-24 bg-muted/30">
           <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center gap-20">
             <div className="w-full lg:w-1/2 relative">
               <div className="aspect-[4/3] rounded-[3rem] overflow-hidden bg-muted shadow-lg">
@@ -234,5 +300,34 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode, titl
         </p>
       </CardContent>
     </Card>
+  );
+}
+
+function AIFeatureCard({ href, icon, title, description, tag, tagColor }: {
+  href: string;
+  icon: string;
+  title: string;
+  description: string;
+  tag: string;
+  tagColor: string;
+}) {
+  return (
+    <Link href={href}>
+      <Card className="border-none shadow-lg shadow-black/5 bg-background rounded-3xl hover:-translate-y-1 hover:shadow-xl transition-all duration-300 cursor-pointer group h-full">
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between mb-4">
+            <span className="text-3xl">{icon}</span>
+            <span className={`px-2.5 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-wider ${tagColor}`}>
+              {tag}
+            </span>
+          </div>
+          <h4 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{title}</h4>
+          <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+          <div className="mt-4 flex items-center gap-1 text-primary text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+            Explore <ChevronRight className="w-4 h-4" />
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
