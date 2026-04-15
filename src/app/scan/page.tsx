@@ -2,10 +2,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useRef, useState, Suspense } from "react";
+import { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useFaceAnalysis } from "@/hooks/use-face-analysis";
+import { useSimulationStore } from "@/store/simulation-store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,13 @@ import {
   Upload, 
   Scan, 
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  LayoutDashboard,
+  Clock,
+  ShoppingBag,
+  MessageCircle,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,11 +33,31 @@ function ScanContent() {
   const initialMode = searchParams.get("mode") === "upload" ? "upload" : "camera";
   
   const { isModelLoading, isAnalyzing, result, loadModels, analyzeFace, setResult } = useFaceAnalysis();
+  const { setAnalysisResult, setCapturedImage, clearSimulations } = useSimulationStore();
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [mode, setMode] = useState<"camera" | "upload">(initialMode);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  /**
+   * Capture the current video frame or uploaded image to base64,
+   * then persist to the Zustand store for use by simulation features.
+   */
+  const captureImageToStore = useCallback((source: HTMLVideoElement | HTMLImageElement) => {
+    const canvas = document.createElement("canvas");
+    if (source instanceof HTMLVideoElement) {
+      canvas.width = source.videoWidth;
+      canvas.height = source.videoHeight;
+    } else {
+      canvas.width = source.naturalWidth;
+      canvas.height = source.naturalHeight;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx?.drawImage(source, 0, 0);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+    setCapturedImage(dataUrl);
+  }, [setCapturedImage]);
 
   useEffect(() => {
     loadModels();
@@ -72,6 +99,7 @@ function ScanContent() {
   const handleCapture = async () => {
     if (videoRef.current && isCameraActive) {
       try {
+        captureImageToStore(videoRef.current);
         await analyzeFace(videoRef.current);
       } catch (err: any) {
         // Handled in hook
@@ -88,6 +116,7 @@ function ScanContent() {
       img.src = url;
       img.onload = async () => {
         try {
+          captureImageToStore(img);
           toast.info("Analyzing uploaded image...");
           await analyzeFace(img);
         } catch (err: any) {
@@ -96,6 +125,19 @@ function ScanContent() {
       };
     }
   };
+
+  // Persist analysis results to the store whenever they change
+  useEffect(() => {
+    if (result) {
+      setAnalysisResult({
+        age: result.age,
+        wrinkleScore: result.wrinkles.score,
+        wrinkleLevel: result.wrinkles.level,
+        gender: result.gender,
+      });
+      clearSimulations(); // Clear old simulations when new scan is done
+    }
+  }, [result, setAnalysisResult, clearSimulations]);
 
   const resetAnalysis = () => {
     setResult(null);
@@ -273,7 +315,47 @@ function ScanContent() {
                     </div>
                   </div>
                   
-                  <div className="pt-4">
+                  {/* Feature Quick Actions */}
+                  <div className="grid grid-cols-3 gap-2 pt-2">
+                    <Link href="/simulate">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
+                        <Sparkles className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Simulate</span>
+                      </Button>
+                    </Link>
+                    <Link href="/dashboard">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
+                        <LayoutDashboard className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Dashboard</span>
+                      </Button>
+                    </Link>
+                    <Link href="/timelapse">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Time-Lapse</span>
+                      </Button>
+                    </Link>
+                    <Link href="/products">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
+                        <ShoppingBag className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Products</span>
+                      </Button>
+                    </Link>
+                    <Link href="/therapist">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
+                        <MessageCircle className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">AI Chat</span>
+                      </Button>
+                    </Link>
+                    <Link href="/report">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
+                        <FileText className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Report</span>
+                      </Button>
+                    </Link>
+                  </div>
+
+                  <div className="pt-2">
                     <Button variant="secondary" className="w-full rounded-2xl bg-white text-primary hover:bg-gray-100 font-bold py-6 text-base shadow-xl" onClick={resetAnalysis}>
                       <RotateCcw className="w-5 h-5 mr-2" /> Reset Diagnostic
                     </Button>

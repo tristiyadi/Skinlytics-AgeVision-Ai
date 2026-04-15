@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  # Skinlytics AgeVision AI - Next.js Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - SDNEXT_URL=http://sdnext:7860
+    depends_on:
+      sdnext:
+        condition: service_started
+    restart: unless-stopped
+
+  # SD.Next - AI Image Generation Server
+  sdnext:
+    image: vladmandic/sdnext:latest
+    ports:
+      - "7860:7860"
+    volumes:
+      - sdnext-models:/app/models/Stable-diffusion
+      - sdnext-outputs:/app/outputs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: ["--api", "--listen", "--docs", "--autolaunch", "--insecure"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/sdapi/v1/progress"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+volumes:
+  sdnext-models:
+  sdnext-outputs:
