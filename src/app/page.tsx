@@ -59,7 +59,7 @@ export default function Home() {
 
       <main className="flex-1 pt-16">
         {/* Hero Section */}
-        <section className="relative py-12 md:py-24 overflow-hidden">
+        <section className="relative py-2 md:py-4 overflow-hidden">
           <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="flex flex-col items-start z-10 text-left">
               <Badge variant="outline" className="mb-6 rounded-full px-4 py-1.5 border-primary/30 text-primary bg-primary/5">
@@ -163,7 +163,7 @@ export default function Home() {
             <div className="mb-16 text-center">
               <Badge variant="outline" className="mb-4 rounded-full px-4 py-1.5 border-primary/30 text-primary bg-primary/5">
                 <Zap className="w-3 h-3 mr-2 inline" />
-                SD.Next Integration
+                Next Integration
               </Badge>
               <h3 className="text-3xl md:text-4xl font-bold">AI-Powered Features</h3>
               <p className="text-muted-foreground mt-4 max-w-xl mx-auto">Analisa kulit Anda lalu jelajahi simulasi AI yang didukung oleh Stable Diffusion.</p>

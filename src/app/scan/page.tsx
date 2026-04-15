@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useFaceAnalysis } from "@/hooks/use-face-analysis";
 import { useSimulationStore } from "@/store/simulation-store";
+import { useScanHistory } from "@/hooks/use-scan-history";
+import { useNetworkStatus } from "@/hooks/use-network-status";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +27,9 @@ import {
   ShoppingBag,
   MessageCircle,
   FileText,
+  Wifi,
+  WifiOff,
+  CloudUpload,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,6 +39,8 @@ function ScanContent() {
   
   const { isModelLoading, isAnalyzing, result, loadModels, analyzeFace, setResult } = useFaceAnalysis();
   const { setAnalysisResult, setCapturedImage, clearSimulations } = useSimulationStore();
+  const { saveScan, pendingCount } = useScanHistory();
+  const { isOnline } = useNetworkStatus();
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -126,18 +133,34 @@ function ScanContent() {
     }
   };
 
-  // Persist analysis results to the store whenever they change
+  // Persist analysis results to the store + save to backend
   useEffect(() => {
     if (result) {
-      setAnalysisResult({
+      const analysisData = {
         age: result.age,
         wrinkleScore: result.wrinkles.score,
         wrinkleLevel: result.wrinkles.level,
         gender: result.gender,
-      });
+      };
+
+      setAnalysisResult(analysisData);
       clearSimulations(); // Clear old simulations when new scan is done
+
+      // Save to backend (queues offline if no connection)
+      saveScan({
+        estimatedAge: analysisData.age,
+        wrinkleScore: analysisData.wrinkleScore,
+        wrinkleLevel: analysisData.wrinkleLevel,
+        gender: analysisData.gender,
+      }).then((saved) => {
+        if (saved) {
+          toast.success("Scan saved to history");
+        } else if (!isOnline) {
+          toast.info("Offline — scan queued for sync");
+        }
+      });
     }
-  }, [result, setAnalysisResult, clearSimulations]);
+  }, [result, setAnalysisResult, clearSimulations, saveScan, isOnline]);
 
   const resetAnalysis = () => {
     setResult(null);
@@ -151,7 +174,7 @@ function ScanContent() {
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-black p-4">
       {/* Header */}
       <header className="flex items-center justify-between mb-6">
-        <Link href="/">
+        <Link href="/dashboard">
           <Button variant="ghost" size="icon" className="rounded-full">
             <ChevronLeft className="w-6 h-6" />
           </Button>
@@ -270,9 +293,23 @@ function ScanContent() {
               <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileUpload} />
             </div>
           )}
-          <div className="absolute top-6 left-6 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white/80 text-[10px] uppercase tracking-[0.2em] font-bold border border-white/10">
-            <ShieldCheck className="w-3 h-3 text-primary" />
-            Local Engine
+          <div className="absolute top-6 left-6 flex flex-col gap-2">
+            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white/80 text-[10px] uppercase tracking-[0.2em] font-bold border border-white/10">
+              <ShieldCheck className="w-3 h-3 text-primary" />
+              Local Engine
+            </div>
+            <div className={`flex items-center gap-2 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold border border-white/10 ${
+              isOnline ? "bg-green-900/40 text-green-300" : "bg-amber-900/40 text-amber-300"
+            }`}>
+              {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+              {isOnline ? "Online" : "Offline"}
+              {pendingCount > 0 && (
+                <span className="flex items-center gap-1 ml-1">
+                  <CloudUpload className="w-3 h-3" />
+                  {pendingCount}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

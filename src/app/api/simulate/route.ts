@@ -5,7 +5,12 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { img2img, checkHealth } from "@/lib/sdnext-client";
-import { buildPrompt, buildAgingPrompt, type SimulationType, type AnalysisInput } from "@/lib/simulation-prompts";
+import {
+  buildPrompt,
+  buildAgingPrompt,
+  type SimulationType,
+  type AnalysisInput,
+} from "@/lib/simulation-prompts";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,8 +24,11 @@ export async function POST(req: NextRequest) {
 
     if (!image || !analysisResult || !simulationType) {
       return NextResponse.json(
-        { error: "Missing required fields: image, analysisResult, simulationType" },
-        { status: 400 }
+        {
+          error:
+            "Missing required fields: image, analysisResult, simulationType",
+        },
+        { status: 400 },
       );
     }
 
@@ -28,8 +36,10 @@ export async function POST(req: NextRequest) {
     const isOnline = await checkHealth();
     if (!isOnline) {
       return NextResponse.json(
-        { error: "SD.Next server is not available. Please ensure it is running on the configured URL." },
-        { status: 503 }
+        {
+          error: "AI Model is not available. Please ensure it is running.",
+        },
+        { status: 503 },
       );
     }
 
@@ -57,7 +67,10 @@ export async function POST(req: NextRequest) {
     });
 
     if (!result.images || result.images.length === 0) {
-      return NextResponse.json({ error: "No image generated" }, { status: 500 });
+      return NextResponse.json(
+        { error: "No image generated" },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({

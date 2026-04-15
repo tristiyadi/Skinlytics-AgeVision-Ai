@@ -9,6 +9,8 @@ import { useRef, useEffect, useState } from "react";
 import { FeatureHeader } from "@/components/feature-header";
 import { NoScanPrompt } from "@/components/no-scan-prompt";
 import { useSimulationStore } from "@/store/simulation-store";
+import { useScanHistory } from "@/hooks/use-scan-history";
+import { useNetworkStatus } from "@/hooks/use-network-status";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -27,10 +29,17 @@ import {
   MessageCircle,
   FileText,
   Clock,
+  ShoppingBag,
+  History,
+  Wifi,
+  WifiOff,
+  CloudUpload,
 } from "lucide-react";
 
 export default function DashboardPage() {
   const { analysisResult, capturedImage } = useSimulationStore();
+  const { history, isLoading: isHistoryLoading, pendingCount } = useScanHistory();
+  const { isOnline } = useNetworkStatus();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showHeatmap, setShowHeatmap] = useState(true);
 
@@ -112,7 +121,42 @@ export default function DashboardPage() {
         title="Dermatology Dashboard"
         subtitle="Analisis klinis kulit komprehensif"
         badge="Clinical"
+        backHref="/"
       />
+
+      {/* AI Features Top Bar */}
+      <nav className="flex gap-2 overflow-x-auto pb-2 mb-4 max-w-7xl mx-auto w-full scrollbar-hide">
+        <Link href="/simulate">
+          <Button variant="outline" size="sm" className="rounded-full px-4 gap-2 whitespace-nowrap hover:bg-primary/10 hover:border-primary/40 transition-all">
+            <Sparkles className="w-4 h-4 text-primary" />
+            Treatment
+          </Button>
+        </Link>
+        <Link href="/timelapse">
+          <Button variant="outline" size="sm" className="rounded-full px-4 gap-2 whitespace-nowrap hover:bg-primary/10 hover:border-primary/40 transition-all">
+            <Clock className="w-4 h-4 text-primary" />
+            Age Time-Lapse
+          </Button>
+        </Link>
+        <Link href="/products">
+          <Button variant="outline" size="sm" className="rounded-full px-4 gap-2 whitespace-nowrap hover:bg-primary/10 hover:border-primary/40 transition-all">
+            <ShoppingBag className="w-4 h-4 text-primary" />
+            Products
+          </Button>
+        </Link>
+        <Link href="/therapist">
+          <Button variant="outline" size="sm" className="rounded-full px-4 gap-2 whitespace-nowrap hover:bg-primary/10 hover:border-primary/40 transition-all">
+            <MessageCircle className="w-4 h-4 text-primary" />
+            AI Therapist
+          </Button>
+        </Link>
+        <Link href="/report">
+          <Button variant="outline" size="sm" className="rounded-full px-4 gap-2 whitespace-nowrap hover:bg-primary/10 hover:border-primary/40 transition-all">
+            <FileText className="w-4 h-4 text-primary" />
+            Clinical Report
+          </Button>
+        </Link>
+      </nav>
 
       <main className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto w-full flex-1">
         {/* Left Column: Face with Heatmap */}
@@ -140,6 +184,69 @@ export default function DashboardPage() {
                   <span className="w-3 h-3 rounded bg-red-500/50 ml-2" /> High
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Scan History */}
+          <Card className="border-none shadow-lg rounded-3xl">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                  <History className="w-3.5 h-3.5" />
+                  Scan History
+                </h3>
+                <div className="flex items-center gap-1.5">
+                  {pendingCount > 0 && (
+                    <Badge variant="outline" className="text-amber-500 border-amber-500/30 text-[10px] py-0 h-5">
+                      <CloudUpload className="w-3 h-3 mr-1" />
+                      {pendingCount}
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className={`text-[10px] py-0 h-5 ${isOnline ? "text-green-500 border-green-500/30" : "text-amber-500 border-amber-500/30"}`}>
+                    {isOnline ? <Wifi className="w-3 h-3 mr-1" /> : <WifiOff className="w-3 h-3 mr-1" />}
+                    {isOnline ? "Online" : "Offline"}
+                  </Badge>
+                </div>
+              </div>
+
+              {isHistoryLoading ? (
+                <div className="text-center py-4 text-muted-foreground text-xs">Loading...</div>
+              ) : history.length > 0 ? (
+                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {history.map((scan) => (
+                    <div key={scan.id} className="flex items-center justify-between bg-muted/40 rounded-xl px-3 py-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+                          {scan.estimatedAge}
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-bold">
+                            Age {scan.estimatedAge} · {scan.wrinkleLevel}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {new Date(scan.createdAt).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[11px] font-bold text-primary">
+                          {scan.overallHealth ?? Math.round(100 - scan.wrinkleScore)}%
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">Health</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-muted-foreground text-xs">
+                  {isOnline ? "No scan history yet" : "History available when online"}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -225,28 +332,6 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
-          <Separator className="my-2" />
-          <div className="grid grid-cols-3 gap-3">
-            <Link href="/simulate">
-              <Button variant="outline" className="w-full rounded-2xl py-5 flex-col gap-1 h-auto">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <span className="text-xs font-bold">Simulate</span>
-              </Button>
-            </Link>
-            <Link href="/therapist">
-              <Button variant="outline" className="w-full rounded-2xl py-5 flex-col gap-1 h-auto">
-                <MessageCircle className="w-5 h-5 text-primary" />
-                <span className="text-xs font-bold">AI Chat</span>
-              </Button>
-            </Link>
-            <Link href="/report">
-              <Button variant="outline" className="w-full rounded-2xl py-5 flex-col gap-1 h-auto">
-                <FileText className="w-5 h-5 text-primary" />
-                <span className="text-xs font-bold">Report</span>
-              </Button>
-            </Link>
-          </div>
         </div>
       </main>
     </div>

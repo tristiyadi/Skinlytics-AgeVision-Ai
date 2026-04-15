@@ -11,7 +11,8 @@ function getAuthHeaders(): HeadersInit {
   const pass = process.env.SDNEXT_AUTH_PASS;
   const headers: HeadersInit = { "Content-Type": "application/json" };
   if (user && pass) {
-    headers["Authorization"] = `Basic ${Buffer.from(`${user}:${pass}`).toString("base64")}`;
+    headers["Authorization"] =
+      `Basic ${Buffer.from(`${user}:${pass}`).toString("base64")}`;
   }
   return headers;
 }
@@ -63,10 +64,14 @@ export interface ProgressResponse {
 /**
  * Send an img2img request to SD.Next
  */
-export async function img2img(payload: Img2ImgPayload): Promise<SDNextResponse> {
+export async function img2img(
+  payload: Img2ImgPayload,
+): Promise<SDNextResponse> {
   const body = {
     prompt: payload.prompt,
-    negative_prompt: payload.negative_prompt || "deformed, blurry, low quality, unrealistic, disfigured, bad anatomy",
+    negative_prompt:
+      payload.negative_prompt ||
+      "deformed, blurry, low quality, unrealistic, disfigured, bad anatomy",
     init_images: payload.init_images,
     steps: payload.steps || 28,
     cfg_scale: payload.cfg_scale || 7,
@@ -84,7 +89,10 @@ export async function img2img(payload: Img2ImgPayload): Promise<SDNextResponse> 
   });
 
   if (!res.ok) {
-    throw new Error(`SD.Next img2img failed: ${res.status} ${res.statusText}`);
+    console.log("img2img not available");
+    throw new Error(
+      `AI Model to image not working: ${res.status} ${res.statusText}`,
+    );
   }
 
   return res.json();
@@ -93,10 +101,14 @@ export async function img2img(payload: Img2ImgPayload): Promise<SDNextResponse> 
 /**
  * Send a txt2img request to SD.Next
  */
-export async function txt2img(payload: Txt2ImgPayload): Promise<SDNextResponse> {
+export async function txt2img(
+  payload: Txt2ImgPayload,
+): Promise<SDNextResponse> {
   const body = {
     prompt: payload.prompt,
-    negative_prompt: payload.negative_prompt || "deformed, blurry, low quality, unrealistic, disfigured, bad anatomy",
+    negative_prompt:
+      payload.negative_prompt ||
+      "deformed, blurry, low quality, unrealistic, disfigured, bad anatomy",
     steps: payload.steps || 28,
     cfg_scale: payload.cfg_scale || 7,
     width: payload.width || 512,
@@ -112,7 +124,9 @@ export async function txt2img(payload: Txt2ImgPayload): Promise<SDNextResponse> 
   });
 
   if (!res.ok) {
-    throw new Error(`SD.Next txt2img failed: ${res.status} ${res.statusText}`);
+    throw new Error(
+      `AI Model to text not working: ${res.status} ${res.statusText}`,
+    );
   }
 
   return res.json();
@@ -127,7 +141,7 @@ export async function getProgress(): Promise<ProgressResponse> {
   });
 
   if (!res.ok) {
-    throw new Error(`SD.Next progress check failed: ${res.status}`);
+    throw new Error(`AI Model progress check failed: ${res.status}`);
   }
 
   return res.json();
@@ -136,7 +150,11 @@ export async function getProgress(): Promise<ProgressResponse> {
 /**
  * Upscale an image using SD.Next
  */
-export async function upscale(imageBase64: string, upscaler: string = "ESRGAN_4x", scale: number = 2): Promise<SDNextResponse> {
+export async function upscale(
+  imageBase64: string,
+  upscaler: string = "ESRGAN_4x",
+  scale: number = 2,
+): Promise<SDNextResponse> {
   const res = await fetch(`${SDNEXT_URL}/sdapi/v1/extra-single-image`, {
     method: "POST",
     headers: getAuthHeaders(),
@@ -148,7 +166,7 @@ export async function upscale(imageBase64: string, upscaler: string = "ESRGAN_4x
   });
 
   if (!res.ok) {
-    throw new Error(`SD.Next upscale failed: ${res.status}`);
+    throw new Error(`AI Model upscale failed: ${res.status}`);
   }
 
   return res.json();
