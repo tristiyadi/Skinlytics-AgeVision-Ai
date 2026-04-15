@@ -50,7 +50,7 @@ export function ConsentDialog({ onAccept, onDecline }: ConsentDialogProps) {
               <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-amber-800 leading-relaxed">
                 Fitur simulasi AI memerlukan pemrosesan gambar wajah Anda di server. 
-                Gambar akan dikirim ke server SD.Next lokal untuk menghasilkan simulasi.
+                Gambar akan dikirim ke server AI Model lokal untuk menghasilkan simulasi.
               </p>
             </div>
 

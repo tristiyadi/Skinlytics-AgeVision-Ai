@@ -102,9 +102,101 @@ export default function TimelapsePage() {
         />
       )}
 
-      <main className="flex flex-col items-center gap-8 max-w-3xl mx-auto w-full flex-1">
-        {/* Image Display */}
-        <div className="relative w-full max-w-lg aspect-square rounded-3xl overflow-hidden bg-black shadow-2xl border-4 border-white/10">
+      <main className="grid grid-cols-1 lg:grid-cols-[400px_minmax(0,1fr)] gap-8 max-w-6xl mx-auto w-full flex-1 items-start">
+        
+        {/* Left Side: Timeline Selector */}
+        <div className="order-2 lg:order-1 flex flex-col gap-4">
+          <Card className="w-full border-none shadow-xl rounded-3xl">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Clock className="w-5 h-5 text-primary" />
+                <h3 className="font-bold text-sm uppercase tracking-widest text-foreground">Select Target Age</h3>
+              </div>
+
+              {/* Age buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => {
+                    setSelectedAge(null);
+                    setDisplayImage(null);
+                  }}
+                  className={`flex flex-col items-center gap-1 px-4 py-4 rounded-2xl border-2 transition-all ${
+                    selectedAge === null
+                      ? "border-primary bg-primary/10 shadow-md"
+                      : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  <span className="text-2xl font-extrabold">{analysisResult.age}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Current</span>
+                </button>
+                {AGE_TARGETS.map((age) => {
+                  const isSelected = selectedAge === age;
+                  const isCached = !!simulatedImages[`aging_${age}`];
+                  const diff = age - analysisResult.age;
+                  return (
+                    <button
+                      key={age}
+                      onClick={() => handleGenerate(age)}
+                      disabled={isGenerating}
+                      className={`flex flex-col items-center gap-1 px-4 py-4 rounded-2xl border-2 transition-all disabled:opacity-50 ${
+                        isSelected
+                          ? "border-primary bg-primary/10 shadow-md"
+                          : "border-border hover:border-primary/40 hover:scale-[1.02]"
+                      }`}
+                    >
+                      <span className="text-2xl font-extrabold">{age}</span>
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                        {diff > 0 ? `+${diff}` : diff} yrs
+                      </span>
+                      {isCached && (
+                        <Badge variant="outline" className="text-[8px] px-1.5 py-0 mt-1 border-green-500 text-green-600 bg-green-500/10">
+                          Ready
+                        </Badge>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Generate All button */}
+              <div className="mt-6 pt-6 border-t border-border">
+                <Button
+                  className="w-full rounded-2xl py-6 text-sm font-bold shadow-lg"
+                  disabled={isGenerating}
+                  onClick={async () => {
+                    if (!hasConsented) {
+                      setShowConsent(true);
+                      return;
+                    }
+                    for (const age of AGE_TARGETS) {
+                      if (!simulatedImages[`aging_${age}`]) {
+                        await simulate("aging", age);
+                      }
+                    }
+                  }}
+                >
+                  <Wand2 className="w-5 h-5 mr-2" />
+                  Generate All Ages
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Info */}
+          {error && (
+            <p className="text-destructive text-sm text-center font-medium bg-destructive/10 p-3 rounded-xl">{error}</p>
+          )}
+
+          <div className="bg-muted/50 p-4 rounded-2xl">
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              ⚠️ <strong>Disclaimer:</strong> Simulasi ini hanya estimasi berdasarkan AI dan bukan prediksi akurat. 
+              Penuaan kulit dipengaruhi banyak faktor termasuk genetik, gaya hidup, perlindungan UV, dan perawatan kulit.
+            </p>
+          </div>
+        </div>
+
+        {/* Right Side: Image Display */}
+        <div className="order-1 lg:order-2 relative w-full aspect-square rounded-[3rem] overflow-hidden bg-black shadow-2xl border-4 border-white/10 group">
           <img
             src={displayImage || capturedImage}
             alt={selectedAge ? `Age ${selectedAge}` : "Current"}
@@ -150,94 +242,6 @@ export default function TimelapsePage() {
             </span>
           </div>
         </div>
-
-        {/* Timeline Selector */}
-        <Card className="w-full border-none shadow-xl rounded-3xl">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-4 h-4 text-primary" />
-              <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">Select Target Age</h3>
-            </div>
-
-            {/* Age buttons */}
-            <div className="flex gap-3 flex-wrap justify-center">
-              <button
-                onClick={() => {
-                  setSelectedAge(null);
-                  setDisplayImage(null);
-                }}
-                className={`flex flex-col items-center gap-1 px-5 py-4 rounded-2xl border-2 transition-all ${
-                  selectedAge === null
-                    ? "border-primary bg-primary/10 scale-105"
-                    : "border-border hover:border-primary/40"
-                }`}
-              >
-                <span className="text-2xl font-extrabold">{analysisResult.age}</span>
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Current</span>
-              </button>
-              {AGE_TARGETS.map((age) => {
-                const isSelected = selectedAge === age;
-                const isCached = !!simulatedImages[`aging_${age}`];
-                const diff = age - analysisResult.age;
-                return (
-                  <button
-                    key={age}
-                    onClick={() => handleGenerate(age)}
-                    disabled={isGenerating}
-                    className={`flex flex-col items-center gap-1 px-5 py-4 rounded-2xl border-2 transition-all disabled:opacity-50 ${
-                      isSelected
-                        ? "border-primary bg-primary/10 scale-105 shadow-lg"
-                        : "border-border hover:border-primary/40 hover:scale-102"
-                    }`}
-                  >
-                    <span className="text-2xl font-extrabold">{age}</span>
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
-                      {diff > 0 ? `+${diff}` : diff} yrs
-                    </span>
-                    {isCached && (
-                      <Badge variant="outline" className="text-[8px] px-1.5 py-0 mt-1 border-green-500 text-green-600">
-                        Ready
-                      </Badge>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Generate All button */}
-            <div className="mt-6 flex justify-center">
-              <Button
-                variant="outline"
-                className="rounded-full gap-2"
-                disabled={isGenerating}
-                onClick={async () => {
-                  if (!hasConsented) {
-                    setShowConsent(true);
-                    return;
-                  }
-                  for (const age of AGE_TARGETS) {
-                    if (!simulatedImages[`aging_${age}`]) {
-                      await simulate("aging", age);
-                    }
-                  }
-                }}
-              >
-                <Wand2 className="w-4 h-4" />
-                Generate All Ages
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Info */}
-        {error && (
-          <p className="text-destructive text-sm text-center">{error}</p>
-        )}
-
-        <p className="text-xs text-muted-foreground text-center max-w-md leading-relaxed pb-8">
-          ⚠️ Simulasi ini hanya estimasi berdasarkan AI dan bukan prediksi akurat. 
-          Penuaan kulit dipengaruhi banyak faktor termasuk genetik, gaya hidup, dan perawatan kulit.
-        </p>
       </main>
     </div>
   );

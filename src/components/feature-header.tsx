@@ -16,7 +16,7 @@ interface FeatureHeaderProps {
   backHref?: string;
 }
 
-export function FeatureHeader({ title, subtitle, badge, backHref = "/" }: FeatureHeaderProps) {
+export function FeatureHeader({ title, subtitle, badge, backHref = "/dashboard" }: FeatureHeaderProps) {
   return (
     <header className="flex items-center gap-4 mb-6">
       <Link href={backHref}>

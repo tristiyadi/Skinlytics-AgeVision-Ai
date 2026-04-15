@@ -1,7 +1,5 @@
-version: "3.9"
-
 services:
-  # Skinlytics AgeVision AI - Next.js Frontend
+  # Skinlytics AgeVision AI — Next.js Frontend
   frontend:
     build:
       context: .
@@ -10,18 +8,23 @@ services:
       - "3000:3000"
     environment:
       - SDNEXT_URL=http://sdnext:7860
+      - SDNEXT_AUTH_USER=
+      - SDNEXT_AUTH_PASS=
     depends_on:
       sdnext:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
 
-  # SD.Next - AI Image Generation Server
+  # SD.Next — AI Image Generation Server
+  # Requires NVIDIA GPU + nvidia-container-toolkit installed on host
   sdnext:
-    image: vladmandic/sdnext:latest
+    build:
+      context: ./sdnext
+      dockerfile: Dockerfile
     ports:
       - "7860:7860"
     volumes:
-      - sdnext-models:/app/models/Stable-diffusion
+      - sdnext-data:/app/models
       - sdnext-outputs:/app/outputs
     deploy:
       resources:
@@ -30,15 +33,15 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    command: ["--api", "--listen", "--docs", "--autolaunch", "--insecure"]
+    command: ["--api", "--listen", "--docs", "--insecure"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7860/sdapi/v1/progress"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 120s
+      start_period: 180s
 
 volumes:
-  sdnext-models:
+  sdnext-data:
   sdnext-outputs:

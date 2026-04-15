@@ -62,7 +62,7 @@ export function BeforeAfter({
           src={before}
           alt={beforeLabel}
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ width: containerRef.current?.offsetWidth || "100%", maxWidth: "none" }}
+          style={{ width: `${(100 / sliderPos) * 100}%`, maxWidth: "none" }}
         />
       </div>
 
