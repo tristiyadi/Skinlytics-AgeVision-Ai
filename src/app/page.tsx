@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background selection:bg-primary/20">
       {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/40">
+      <nav className="fixed top-0 w-full z-50 bg-gradient-to-r from-primary/5 via-background/90 to-secondary/5 backdrop-blur-xl border-b border-border/40">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
@@ -20,7 +20,7 @@ export default function Home() {
             <span className="font-bold text-xl tracking-tight">Skinlytics</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <Link href="#features" className="hover:text-primary transition-colors">Features</Link>
+            <Link href="/features" className="hover:text-primary transition-colors">Features</Link>
             <Link href="/science" className="hover:text-primary transition-colors">Science</Link>
             <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
           </div>
