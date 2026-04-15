@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -134,157 +135,164 @@ function ScanContent() {
         <div className="w-10" />
       </header>
 
-      <main className="flex-1 flex flex-col items-center max-w-2xl mx-auto w-full">
-        {isModelLoading ? (
-          <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-            <Scan className="w-12 h-12 text-primary animate-pulse" />
-            <p className="text-muted-foreground animate-pulse">Initializing AI Models...</p>
-          </div>
-        ) : (
-          <>
-            {/* Analysis Result Card */}
-            {result && (
-              <Card className="w-full mb-6 border-none shadow-xl bg-primary text-primary-foreground overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-primary-foreground/80 text-sm uppercase tracking-wider font-bold">Estimated Profile</p>
-                        <Badge variant="outline" className="bg-white/10 border-white/20 text-white text-[10px] uppercase">
-                          {result.gender}
-                        </Badge>
-                      </div>
-                      <h2 className="text-5xl font-bold">{result.age} <span className="text-2xl font-normal text-primary-foreground/60">years</span></h2>
+      <main className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_450px] gap-8 max-w-6xl mx-auto w-full">
+        
+        {/* Left Side: Viewfinder */}
+        <div className="relative w-full aspect-[3/4] lg:aspect-square rounded-[3rem] overflow-hidden bg-black shadow-2xl border-4 border-white/10 group">
+          {isModelLoading && (
+            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center space-y-4 bg-background/80 backdrop-blur-sm rounded-3xl">
+              <Scan className="w-12 h-12 text-primary animate-pulse" />
+              <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Initializing Neural Engine...</p>
+            </div>
+          )}
+          
+          {mode === "camera" ? (
+            <>
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                muted 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 pointer-events-none border-[0.5px] border-white/5 grid grid-cols-3 grid-rows-3 opacity-30">
+                {[...Array(9)].map((_, i) => (
+                  <div key={i} className="border-[0.5px] border-white/10"></div>
+                ))}
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-64 h-80 border-2 border-primary/40 rounded-[100px] border-dashed animate-pulse"></div>
+              </div>
+              <div className="absolute bottom-10 inset-x-0 flex justify-center">
+                <Button 
+                  size="lg" 
+                  disabled={isAnalyzing}
+                  className="rounded-full w-24 h-24 bg-white/20 backdrop-blur-xl hover:bg-white/30 text-white border-2 border-white/50 shadow-2xl p-0 transition-transform active:scale-90"
+                  onClick={handleCapture}
+                >
+                  {isAnalyzing ? (
+                    <RotateCcw className="w-8 h-8 animate-spin" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-white shadow-inner flex items-center justify-center">
+                      <Scan className="w-6 h-6 text-primary" />
                     </div>
-                    <Badge variant="outline" className="bg-white/10 border-white/20 text-white px-3 py-1">
-                      Skin Clarity: {100 - result.wrinkles.score}
-                    </Badge>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between items-center mb-1 text-sm">
-                        <span>Wrinkle Level: <b className="uppercase tracking-wide">{result.wrinkles.level}</b></span>
-                        <span>{result.wrinkles.score}%</span>
-                      </div>
-                      <Progress value={result.wrinkles.score} className="h-2 bg-white/20" />
-                    </div>
-                    
-                    <div className="pt-2 flex gap-2">
-                       <Button 
-                        variant="secondary" 
-                        className="flex-1 rounded-full bg-white text-primary hover:bg-gray-100 font-bold"
-                        onClick={resetAnalysis}
-                       >
-                         <RotateCcw className="w-4 h-4 mr-2" /> New Analysis
-                       </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Viewfinder Area */}
-            <div className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden bg-black shadow-2xl border-4 border-white/10 group">
-              {mode === "camera" ? (
+                  )}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-full relative bg-surface-container-low">
+              {previewUrl ? (
                 <>
-                  <video 
-                    ref={videoRef} 
-                    autoPlay 
-                    playsInline 
-                    muted 
-                    className="w-full h-full object-cover"
+                  <img 
+                    src={previewUrl} 
+                    alt="Preview" 
+                    className="w-full h-full object-cover animate-in fade-in duration-500"
                   />
-                  {/* Grid Overlay */}
-                  <div className="absolute inset-0 pointer-events-none border-[0.5px] border-white/5 grid grid-cols-3 grid-rows-3 opacity-30">
-                    {[...Array(9)].map((_, i) => (
-                      <div key={i} className="border-[0.5px] border-white/10"></div>
-                    ))}
-                  </div>
-                  
-                  {/* Face Guide UI */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-64 h-80 border-2 border-primary/20 rounded-[100px] border-dashed animate-pulse"></div>
-                  </div>
-
-                  {/* Camera Controls */}
-                  <div className="absolute bottom-10 inset-x-0 flex justify-center">
+                  <div className="absolute bottom-8 inset-x-0 flex justify-center">
                     <Button 
-                      size="lg" 
+                      variant="secondary"
+                      className="rounded-full bg-black/60 backdrop-blur-xl text-white border border-white/20 hover:bg-black/80 px-8 py-6 text-base"
+                      onClick={() => fileInputRef.current?.click()}
                       disabled={isAnalyzing}
-                      className="rounded-full w-20 h-20 bg-white hover:bg-gray-100 text-primary border-8 border-gray-100 shadow-2xl p-0 transition-transform active:scale-90"
-                      onClick={handleCapture}
                     >
-                      {isAnalyzing ? (
-                        <RotateCcw className="w-8 h-8 animate-spin" />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full border-4 border-primary" />
-                      )}
+                      <Upload className="w-5 h-5 mr-3" /> Change Photo
                     </Button>
                   </div>
                 </>
               ) : (
-                <div className="w-full h-full relative">
-                  {previewUrl ? (
-                    <>
-                      <img 
-                        src={previewUrl} 
-                        alt="Preview" 
-                        className="w-full h-full object-cover animate-in fade-in duration-500"
-                      />
-                      <div className="absolute bottom-6 inset-x-0 flex justify-center">
-                        <Button 
-                          variant="secondary"
-                          className="rounded-full bg-black/50 backdrop-blur-md text-white border-white/20 hover:bg-black/70"
-                          onClick={() => fileInputRef.current?.click()}
-                          disabled={isAnalyzing}
-                        >
-                          <Upload className="w-4 h-4 mr-2" /> Change Photo
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center space-y-8 bg-gray-900/10 backdrop-blur-sm">
-                      <div className="w-24 h-24 rounded-3xl bg-primary/20 flex items-center justify-center text-primary transform rotate-6 animate-in zoom-in duration-300">
-                        <Upload className="w-10 h-10 -rotate-6" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold mb-3 tracking-tight">Upload Portrait</h3>
-                        <p className="text-muted-foreground text-sm max-w-[280px] leading-relaxed">
-                          Select a clear photo of your face for analysis. Best results are achieved with natural lighting and no makeup.
-                        </p>
-                      </div>
-                      <Button 
-                        variant="default" 
-                        className="rounded-full px-10 py-7 text-lg font-bold shadow-xl shadow-primary/20"
-                        disabled={isAnalyzing}
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        {isAnalyzing ? (
-                          <><RotateCcw className="w-5 h-5 mr-2 animate-spin" /> Analyzing...</>
-                        ) : (
-                          "Select Photo"
-                        )}
-                      </Button>
-                    </div>
-                  )}
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    hidden 
-                    accept="image/*" 
-                    onChange={handleFileUpload}
-                  />
+                <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center space-y-8">
+                  <div className="w-32 h-32 rounded-[2rem] bg-white shadow-xl flex items-center justify-center text-primary transform -rotate-3 animate-in zoom-in duration-300">
+                    <Upload className="w-12 h-12 rotate-3" />
+                  </div>
+                  <div>
+                    <h3 className="text-3xl font-bold mb-4 font-headline tracking-tight text-on-surface">Upload Portrait</h3>
+                    <p className="text-on-surface-variant text-base max-w-xs leading-relaxed mx-auto">
+                      Select a clear, front-facing photo for analysis. Best results are achieved with natural lighting and no makeup.
+                    </p>
+                  </div>
+                  <Button 
+                    variant="default" 
+                    className="rounded-full px-12 py-8 text-lg font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-transform"
+                    disabled={isAnalyzing || isModelLoading}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {isAnalyzing ? (
+                      <><RotateCcw className="w-6 h-6 mr-3 animate-spin" /> Analyzing Frame...</>
+                    ) : (
+                      "Select Photo"
+                    )}
+                  </Button>
                 </div>
               )}
+              <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileUpload} />
             </div>
+          )}
+          <div className="absolute top-6 left-6 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white/80 text-[10px] uppercase tracking-[0.2em] font-bold border border-white/10">
+            <ShieldCheck className="w-3 h-3 text-primary" />
+            Local Engine
+          </div>
+        </div>
 
-            <div className="mt-8 flex items-center gap-2 text-muted-foreground text-[10px] uppercase tracking-[0.2em] font-black opacity-60">
-              <ShieldCheck className="w-3 h-3 text-primary" />
-              Secure Biometric Engine Active
+        {/* Right Side: Analysis Results Panel */}
+        <div className="w-full h-full flex flex-col">
+          {result ? (
+            <Card className="flex flex-col justify-center w-full min-h-full border-none shadow-2xl bg-gradient-to-br from-primary to-[#004a31] text-primary-foreground rounded-[2.5rem] overflow-hidden animate-in fade-in slide-in-from-right-8 duration-700">
+              <CardContent className="p-8">
+                <div className="flex flex-col mb-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-primary-foreground/80 text-xs uppercase tracking-widest font-bold">Biometric Age</p>
+                    <Badge variant="outline" className="bg-white/10 border-white/20 text-white text-[10px] uppercase tracking-widest">
+                      {result.gender}
+                    </Badge>
+                  </div>
+                  <h2 className="text-7xl font-headline font-extrabold tracking-tighter">
+                    {result.age} <span className="text-3xl font-medium text-primary-foreground/60 tracking-normal">yrs</span>
+                  </h2>
+                </div>
+                <div className="space-y-6">
+                  <div className="bg-black/10 rounded-3xl p-5 border border-white/10">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-bold uppercase tracking-wider">Skin Clarity</span>
+                      <span className="font-bold text-lg">{100 - result.wrinkles.score}%</span>
+                    </div>
+                    <Progress value={100 - result.wrinkles.score} className="h-2 bg-black/20 mb-4" />
+                    <div className="text-xs text-white/80 leading-relaxed">
+                      <b>Kejernihan Kulit:</b> Skor melambangkan tingkat kemulusan struktur permukaan dari pantulan cahaya. {result.wrinkles.score < 40 ? "Permukaan kulit Anda terdeteksi sangat rapat dengan intervensi bayangan tekstur minimal." : "Terdeteksi adanya garis lipatan struktural alami yang memengaruhi pantulan cahaya pada kulit."}
+                    </div>
+                  </div>
+                  <div className="bg-black/10 rounded-3xl p-5 border border-white/10">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-bold uppercase tracking-wider">Wrinkle Level</span>
+                      <span className="font-bold text-lg">{result.wrinkles.score}%</span>
+                    </div>
+                    <Progress value={result.wrinkles.score} className="h-2 bg-black/20 mb-4" />
+                    <div className="text-xs text-white/80 leading-relaxed">
+                      <b>Tingkat Kerutan:</b> {result.wrinkles.score}% area dahi dan sudut mata menunjukkan garis tekstur yang dalam. 
+                      {result.wrinkles.score > 35 ? " Disarankan untuk mengoptimalkan hidrasi harian (moisturizer) dan penggunaan tabir surya." : " Struktur wajah terjaga dengan sangat baik dan elastis."}
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4">
+                    <Button variant="secondary" className="w-full rounded-2xl bg-white text-primary hover:bg-gray-100 font-bold py-6 text-base shadow-xl" onClick={resetAnalysis}>
+                      <RotateCcw className="w-5 h-5 mr-2" /> Reset Diagnostic
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="hidden lg:flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[3rem] text-center p-8 bg-surface/50">
+              <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-6">
+                <Scan className="w-8 h-8 text-gray-400" />
+              </div>
+              <h4 className="text-xl font-bold text-on-surface mb-2 font-headline">Awaiting Frame Scan Or Upload Face</h4>
+              <p className="text-on-surface-variant text-sm max-w-[250px] leading-relaxed">
+                Position your face clearly within the frame or upload a portrait to initialize the biometric scan.
+              </p>
             </div>
-          </>
-        )}
+          )}
+        </div>
       </main>
     </div>
   );
