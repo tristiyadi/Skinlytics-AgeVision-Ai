@@ -60,14 +60,26 @@ export function useFaceAnalysis() {
         };
 
         console.log("Starting face detection (SSD)...");
-        // Using SSD MobileNet V1 for higher accuracy
-        const detection = await faceapi
+        // Stage 1: Try SSD MobileNet V1 for high accuracy
+        let detection = await faceapi
           .detectSingleFace(
             inputElement,
-            new faceapi.SsdMobilenetv1Options({ minConfidence: 0.4 }),
+            new faceapi.SsdMobilenetv1Options({ minConfidence: 0.35 }),
           )
           .withFaceLandmarks()
           .withAgeAndGender();
+
+        // Stage 2: Fallback to TinyFaceDetector if SSD fails
+        if (!detection) {
+          console.log("SSD failed, trying TinyFaceDetector fallback...");
+          detection = await faceapi
+            .detectSingleFace(
+              inputElement,
+              new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 }),
+            )
+            .withFaceLandmarks()
+            .withAgeAndGender();
+        }
 
         if (detection) {
           console.log("Face detected!", detection);
@@ -87,7 +99,7 @@ export function useFaceAnalysis() {
           });
         } else {
           const msg =
-            "No face detected. Please ensure your face is clearly visible.";
+            "No face detected. Please ensure your face is clearly visible and well-lit.";
           console.warn(msg);
           toast.error(msg);
           throw new Error(msg);

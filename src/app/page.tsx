@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +9,29 @@ import { Badge } from "@/components/ui/badge";
 import { Scan, ShieldCheck, Zap, Activity, ChevronRight, Camera, Upload } from "lucide-react";
 
 export default function Home() {
+  // Background prefetch the heavy AI neural weights while the user reads the home page.
+  useEffect(() => {
+    const prefetchModels = () => {
+      const urls = [
+        "/models/ssd_mobilenetv1_model-weights_manifest.json",
+        "/models/ssd_mobilenetv1_model.bin",
+        "/models/face_landmark_68_model-weights_manifest.json",
+        "/models/face_landmark_68_model.bin",
+        "/models/age_gender_model-weights_manifest.json",
+        "/models/age_gender_model.bin"
+      ];
+      // Quietly fetch the models into browser disk cache
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => {
+          urls.forEach(url => fetch(url, { priority: 'low' }).catch(()=>{}));
+        });
+      } else {
+        setTimeout(() => urls.forEach(url => fetch(url).catch(()=>{})), 2000);
+      }
+    };
+    prefetchModels();
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-background selection:bg-primary/20">
       {/* Navbar */}
