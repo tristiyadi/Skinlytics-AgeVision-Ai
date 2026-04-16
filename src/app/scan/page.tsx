@@ -30,6 +30,12 @@ import {
   Wifi,
   WifiOff,
   CloudUpload,
+  Lightbulb,
+  TrendingUp,
+  Droplets,
+  Sun,
+  Heart,
+  BookOpen,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -293,7 +299,7 @@ function ScanContent() {
               <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileUpload} />
             </div>
           )}
-          <div className="absolute top-6 left-6 flex flex-col gap-2">
+          <div className="absolute top-6 left-6 right-6 flex items-center justify-between">
             <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white/80 text-[10px] uppercase tracking-[0.2em] font-bold border border-white/10">
               <ShieldCheck className="w-3 h-3 text-primary" />
               Local Engine
@@ -316,9 +322,56 @@ function ScanContent() {
         {/* Right Side: Analysis Results Panel */}
         <div className="w-full h-full flex flex-col">
           {result ? (
-            <Card className="flex flex-col justify-center w-full min-h-full border-none shadow-2xl bg-gradient-to-br from-primary to-[#004a31] text-primary-foreground rounded-[2.5rem] overflow-hidden animate-in fade-in slide-in-from-right-8 duration-700">
-              <CardContent className="p-8">
-                <div className="flex flex-col mb-8">
+            <Card className="flex flex-col w-full min-h-full border-none shadow-2xl bg-gradient-to-br from-primary to-[#004a31] text-primary-foreground rounded-[2.5rem] overflow-hidden animate-in fade-in slide-in-from-right-8 duration-700">
+              <CardContent className="p-8 overflow-y-auto max-h-[85vh]">
+                
+                {/* Feature Quick Actions — Top */}
+                <div className="mb-6">
+                  <p className="text-primary-foreground/60 text-[10px] uppercase tracking-[0.2em] font-bold mb-3 flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3" /> Quick Actions
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Link href="/simulate">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1 transition-all hover:scale-105">
+                        <Sparkles className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Simulate</span>
+                      </Button>
+                    </Link>
+                    <Link href="/dashboard">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1 transition-all hover:scale-105">
+                        <LayoutDashboard className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Dashboard</span>
+                      </Button>
+                    </Link>
+                    <Link href="/timelapse">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1 transition-all hover:scale-105">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Time-Lapse</span>
+                      </Button>
+                    </Link>
+                    <Link href="/products">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1 transition-all hover:scale-105">
+                        <ShoppingBag className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Products</span>
+                      </Button>
+                    </Link>
+                    <Link href="/therapist">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1 transition-all hover:scale-105">
+                        <MessageCircle className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">AI Chat</span>
+                      </Button>
+                    </Link>
+                    <Link href="/report">
+                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1 transition-all hover:scale-105">
+                        <FileText className="w-4 h-4" />
+                        <span className="text-[10px] font-bold">Report</span>
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Biometric Age */}
+                <div className="flex flex-col mb-6">
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-primary-foreground/80 text-xs uppercase tracking-widest font-bold">Biometric Age</p>
                     <Badge variant="outline" className="bg-white/10 border-white/20 text-white text-[10px] uppercase tracking-widest">
@@ -329,7 +382,9 @@ function ScanContent() {
                     {result.age} <span className="text-3xl font-medium text-primary-foreground/60 tracking-normal">yrs</span>
                   </h2>
                 </div>
-                <div className="space-y-6">
+
+                <div className="space-y-5">
+                  {/* Skin Clarity */}
                   <div className="bg-black/10 rounded-3xl p-5 border border-white/10">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-bold uppercase tracking-wider">Skin Clarity</span>
@@ -340,6 +395,8 @@ function ScanContent() {
                       <b>Kejernihan Kulit:</b> Skor melambangkan tingkat kemulusan struktur permukaan dari pantulan cahaya. {result.wrinkles.score < 40 ? "Permukaan kulit Anda terdeteksi sangat rapat dengan intervensi bayangan tekstur minimal." : "Terdeteksi adanya garis lipatan struktural alami yang memengaruhi pantulan cahaya pada kulit."}
                     </div>
                   </div>
+
+                  {/* Wrinkle Level */}
                   <div className="bg-black/10 rounded-3xl p-5 border border-white/10">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-bold uppercase tracking-wider">Wrinkle Level</span>
@@ -352,46 +409,82 @@ function ScanContent() {
                     </div>
                   </div>
                   
-                  {/* Feature Quick Actions */}
-                  <div className="grid grid-cols-3 gap-2 pt-2">
-                    <Link href="/simulate">
-                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
-                        <Sparkles className="w-4 h-4" />
-                        <span className="text-[10px] font-bold">Simulate</span>
-                      </Button>
-                    </Link>
-                    <Link href="/dashboard">
-                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
-                        <LayoutDashboard className="w-4 h-4" />
-                        <span className="text-[10px] font-bold">Dashboard</span>
-                      </Button>
-                    </Link>
-                    <Link href="/timelapse">
-                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span className="text-[10px] font-bold">Time-Lapse</span>
-                      </Button>
-                    </Link>
-                    <Link href="/products">
-                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
-                        <ShoppingBag className="w-4 h-4" />
-                        <span className="text-[10px] font-bold">Products</span>
-                      </Button>
-                    </Link>
-                    <Link href="/therapist">
-                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
-                        <MessageCircle className="w-4 h-4" />
-                        <span className="text-[10px] font-bold">AI Chat</span>
-                      </Button>
-                    </Link>
-                    <Link href="/report">
-                      <Button variant="secondary" className="w-full rounded-xl bg-white/10 hover:bg-white/20 text-white border-none h-auto py-3 flex-col gap-1">
-                        <FileText className="w-4 h-4" />
-                        <span className="text-[10px] font-bold">Report</span>
-                      </Button>
-                    </Link>
+                  {/* Insight & Analysis Summary */}
+                  <div className="bg-gradient-to-br from-white/15 to-white/5 rounded-3xl p-5 border border-white/20 backdrop-blur-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-7 h-7 rounded-lg bg-amber-400/20 flex items-center justify-center">
+                        <Lightbulb className="w-4 h-4 text-amber-300" />
+                      </div>
+                      <h3 className="text-sm font-bold uppercase tracking-wider">Insight & Analysis</h3>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {/* Overall Assessment */}
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <TrendingUp className="w-3 h-3 text-emerald-300" />
+                        </div>
+                        <div className="text-xs text-white/85 leading-relaxed">
+                          <b className="text-white">Penilaian Umum:</b>{" "}
+                          {result.wrinkles.score < 30
+                            ? "Kondisi kulit Anda sangat baik dengan tanda-tanda penuaan yang minimal. Kulit tampak sehat, elastis, dan terhidrasi dengan baik."
+                            : result.wrinkles.score < 55
+                            ? "Kulit Anda dalam kondisi cukup baik dengan beberapa tanda penuaan ringan. Perawatan rutin dapat membantu menjaga dan meningkatkan kualitas kulit."
+                            : "Terdeteksi tanda-tanda penuaan yang signifikan. Disarankan untuk konsultasi dengan dermatologis dan memulai rejimen perawatan kulit intensif."}
+                        </div>
+                      </div>
+
+                      {/* Hydration Insight */}
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Droplets className="w-3 h-3 text-blue-300" />
+                        </div>
+                        <div className="text-xs text-white/85 leading-relaxed">
+                          <b className="text-white">Hidrasi:</b>{" "}
+                          {result.wrinkles.score < 35
+                            ? "Level hidrasi kulit optimal. Pertahankan asupan air 8 gelas/hari dan gunakan pelembab berbasis hyaluronic acid."
+                            : "Level hidrasi kulit perlu ditingkatkan. Gunakan serum hyaluronic acid 2x sehari dan pastikan asupan air minimal 8 gelas/hari."}
+                        </div>
+                      </div>
+
+                      {/* UV Protection */}
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Sun className="w-3 h-3 text-yellow-300" />
+                        </div>
+                        <div className="text-xs text-white/85 leading-relaxed">
+                          <b className="text-white">Proteksi UV:</b>{" "}
+                          Gunakan tabir surya SPF 30+ setiap hari, bahkan saat cuaca mendung. 
+                          {result.wrinkles.score > 40 ? " Paparan UV tanpa perlindungan berkontribusi signifikan terhadap penuaan dini yang terdeteksi." : " Kebiasaan perlindungan matahari Anda tampak efektif."}
+                        </div>
+                      </div>
+
+                      {/* Lifestyle Recommendation */}
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Heart className="w-3 h-3 text-rose-300" />
+                        </div>
+                        <div className="text-xs text-white/85 leading-relaxed">
+                          <b className="text-white">Gaya Hidup:</b>{" "}
+                          {result.age < 30
+                            ? "Di usia Anda, fokus pada pencegahan: antioksidan, retinol ringan, dan tidur 7-8 jam/malam untuk regenerasi sel kulit optimal."
+                            : result.age < 45
+                            ? "Pertimbangkan untuk menambah retinol, peptida, dan vitamin C ke rutinitas Anda. Tidur berkualitas dan manajemen stres sangat penting."
+                            : "Fokus pada perawatan intensif: retinol, niacinamide, dan peptida. Konsultasikan dengan dermatologis untuk treatment profesional seperti microneedling."}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Summary Badge */}
+                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/10">
+                      <BookOpen className="w-3.5 h-3.5 text-white/60" />
+                      <span className="text-[10px] text-white/50 uppercase tracking-widest font-bold">
+                        Ringkasan: {result.wrinkles.score < 30 ? "Kulit Sehat — Pertahankan" : result.wrinkles.score < 55 ? "Perlu Perhatian — Optimalkan" : "Prioritas Tinggi — Konsultasi"}
+                      </span>
+                    </div>
                   </div>
 
+                  {/* Reset Button */}
                   <div className="pt-2">
                     <Button variant="secondary" className="w-full rounded-2xl bg-white text-primary hover:bg-gray-100 font-bold py-6 text-base shadow-xl" onClick={resetAnalysis}>
                       <RotateCcw className="w-5 h-5 mr-2" /> Reset Diagnostic

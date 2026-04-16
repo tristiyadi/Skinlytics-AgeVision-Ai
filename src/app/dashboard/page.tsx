@@ -34,6 +34,7 @@ import {
   Wifi,
   WifiOff,
   CloudUpload,
+  Lightbulb,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -154,6 +155,12 @@ export default function DashboardPage() {
           <Button variant="outline" size="sm" className="rounded-full px-4 gap-2 whitespace-nowrap hover:bg-primary/10 hover:border-primary/40 transition-all">
             <FileText className="w-4 h-4 text-primary" />
             Clinical Report
+          </Button>
+        </Link>
+        <Link href="/insights">
+          <Button variant="outline" size="sm" className="rounded-full px-4 gap-2 whitespace-nowrap hover:bg-amber-500/10 hover:border-amber-500/40 border-amber-500/20 transition-all">
+            <Lightbulb className="w-4 h-4 text-amber-500" />
+            Insights
           </Button>
         </Link>
       </nav>
@@ -331,6 +338,7 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+
 
         </div>
       </main>
