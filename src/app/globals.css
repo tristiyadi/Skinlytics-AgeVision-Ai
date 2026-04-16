@@ -107,3 +107,92 @@
     @apply font-sans;
   }
 }
+
+/* ─── Print / PDF Export Styles ─── */
+@media print {
+  /* Hide UI chrome that shouldn't appear in PDF */
+  .no-print,
+  header,
+  nav,
+  footer,
+  button,
+  [data-no-print] {
+    display: none !important;
+  }
+
+  /* Show elements marked as print-only */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Reset backgrounds for readability */
+  body,
+  html {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove decorative styling */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Keep gradient cards visible with forced color printing */
+  .print-keep-bg {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Cards: clean borders, no excessive rounding */
+  [class*="rounded-3xl"] {
+    border-radius: 12px !important;
+  }
+
+  /* Prevent page breaks inside cards */
+  [class*="Card"],
+  [class*="card"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure progress bars print with color */
+  [role="progressbar"],
+  [class*="Progress"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Page setup */
+  @page {
+    margin: 1cm 1.5cm;
+    size: A4;
+  }
+
+  /* Full width content */
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Ensure images print */
+  img {
+    max-width: 100% !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure text colors print */
+  [class*="text-emerald"],
+  [class*="text-amber"],
+  [class*="text-red"],
+  [class*="text-blue"],
+  [class*="text-green"],
+  [class*="text-purple"],
+  [class*="text-primary"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
